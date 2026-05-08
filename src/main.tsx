@@ -4,7 +4,7 @@ import './styles/index.css';
 import Keycloak from 'keycloak-js';
 
 const keycloak = new Keycloak({
-  url: 'http://localhost:8080',
+  url: 'https://keycloak-production-6edd.up.railway.app',
   realm: 'chargehub',
   clientId: 'chargehub-frontend',
 });

@@ -21,7 +21,7 @@ export function Login({ onLogin }: LoginProps) {
 
     try {
       const response = await fetch(
-        'http://localhost:8080/realms/chargehub/protocol/openid-connect/token',
+        'https://keycloak-production-6edd.up.railway.app/realms/chargehub/protocol/openid-connect/token',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

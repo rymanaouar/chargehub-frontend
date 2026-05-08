@@ -32,7 +32,7 @@ export default function App({ keycloak }: AppProps) {
   }, [keycloak]);
 
   const handleLogout = () => {
-    keycloak.logout({ redirectUri: 'http://localhost:5173' });
+    keycloak.logout({ redirectUri: 'https://chargehub-frontend.vercel.app' });
   };
 
   if (!role) {

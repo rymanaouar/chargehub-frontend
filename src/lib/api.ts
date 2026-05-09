@@ -1,4 +1,4 @@
-const API_URL = 'http://172.19.75.84:3001/api'
+const API_URL = 'https://chargehub-backend-production.up.railway.app/api'
 
 // ==================== STATIONS ====================
 

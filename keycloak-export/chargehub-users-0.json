@@ -1,0 +1,64 @@
+{
+  "realm" : "chargehub",
+  "users" : [ {
+    "id" : "8420c9d4-4b77-47af-a802-cf5a5c8d1120",
+    "username" : "agent.back",
+    "firstName" : "ryma",
+    "lastName" : "naouar",
+    "email" : "agent@back.com",
+    "emailVerified" : true,
+    "createdTimestamp" : 1774388568174,
+    "enabled" : true,
+    "totp" : true,
+    "credentials" : [ {
+      "id" : "eb61f81e-5ff1-463a-b2fe-efd18e29d22c",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1774388586107,
+      "secretData" : "{\"value\":\"GyytNN98CXkWULXfLBVxLK+sLCXRxfwZ+YO6Tbc0EBHAg0QpedTWWYjLaoOuJz9lM0A4a7UVpMijvUpRg/0oyw==\",\"salt\":\"Di70blH5IX0QVP+l25wx2A==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+    }, {
+      "id" : "9e04a75b-457a-4e86-92d1-561c7c963387",
+      "type" : "otp",
+      "userLabel" : "Oppa find x5",
+      "createdDate" : 1774543677798,
+      "secretData" : "{\"value\":\"4emr0v6BQtTl6c9vRTO3\"}",
+      "credentialData" : "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA1\"}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-chargehub", "back-office" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "e4ef7e4e-5b2a-412f-b6e8-58a544fb6321",
+    "username" : "agent.front",
+    "firstName" : "test1",
+    "lastName" : "test1",
+    "email" : "agent@front.com",
+    "emailVerified" : true,
+    "createdTimestamp" : 1774388492366,
+    "enabled" : true,
+    "totp" : true,
+    "credentials" : [ {
+      "id" : "47cab791-8e22-4f09-8b7e-dca7019a8aa2",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1774388510860,
+      "secretData" : "{\"value\":\"/dVeYSdUgkHhXO/7dEL2+3g7/jJR0ak6CTomnSA36EPD+xLwS4VnKbptZVmSjbD+G13cQ3XEt0qGXTXpFLd3nQ==\",\"salt\":\"nm6PtVWqZNShvZ2TQWamtw==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+    }, {
+      "id" : "9a6fa720-ccbc-4da7-a859-5f601f4f774d",
+      "type" : "otp",
+      "userLabel" : "Oppo find x5",
+      "createdDate" : 1774543568894,
+      "secretData" : "{\"value\":\"OBb6RBymJjT57rS41jSt\"}",
+      "credentialData" : "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA1\"}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-chargehub", "front-office" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  } ]
+}

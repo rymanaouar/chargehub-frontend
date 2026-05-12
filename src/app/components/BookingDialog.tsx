@@ -106,7 +106,7 @@ export function BookingDialog({ isOpen, onClose, onFinish, station, onConfirm }:
     }
 
     onConfirm(bookingData);
-    setShowQR(true); // show QR — dialog stays open
+    setShowQR(true);
   };
 
   const handleClose = () => {
@@ -118,64 +118,131 @@ export function BookingDialog({ isOpen, onClose, onFinish, station, onConfirm }:
   const handleTerminer = () => {
     setShowQR(false);
     setShowSmartRec(true);
-    onFinish(); // closes dialog + switches to history tab
+    onFinish();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className={showQR ? 'max-w-md' : 'max-w-lg max-h-[80vh] overflow-y-auto'}>
+      {/*
+        MOBILE FIX: DialogContent sizing strategy per screen:
+        - QR screen: fixed max height with internal scroll so "Terminer" is always reachable
+        - Other screens: unchanged (max-w-lg, 80vh scroll)
+        - w-[calc(100vw-2rem)] prevents overflow on ~390px Android screens
+      */}
+      <DialogContent
+        className={
+          showQR
+            ? 'w-[calc(100vw-2rem)] max-w-md p-0 gap-0 max-h-[92vh] flex flex-col overflow-hidden'
+            : 'w-[calc(100vw-2rem)] max-w-lg max-h-[85vh] overflow-y-auto'
+        }
+      >
 
-        {/* QR CODE SCREEN */}
+        {/* ── QR CODE SCREEN ─────────────────────────────────────────────── */}
         {showQR ? (
-          <div className="flex flex-col items-center gap-6 py-4">
-            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-100">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-[#171a20]">Réservation confirmée !</h2>
-              <p className="text-sm text-slate-500 mt-1">Scannez ce QR code à la borne pour démarrer votre recharge</p>
-            </div>
-            <div className="p-4 bg-white border-2 border-[#171a20] rounded-2xl shadow-lg">
-              <QRCodeSVG value={qrValue} size={200} bgColor="#ffffff" fgColor="#171a20" level="H" includeMargin={true} />
-            </div>
-            <div className="w-full bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
-              <span className="text-2xl">🌱</span>
-              <div>
-                <p className="text-sm font-semibold text-green-800">Impact écologique</p>
-                <p className="text-xs text-green-600">{co2Saved} kg CO2 économisés • {treesEquiv} arbres plantés 🌳</p>
+          /*
+            MOBILE FIX: The QR screen is split into two zones:
+            1. A scrollable middle section (flex-1 overflow-y-auto) with the QR + details
+            2. A sticky bottom button that is ALWAYS visible regardless of scroll position
+
+            This guarantees "Terminer" is never pushed off-screen on small phones.
+          */
+          <>
+            {/* Scrollable content zone */}
+            <div className="flex-1 overflow-y-auto px-4 pt-4 pb-2">
+              <div className="flex flex-col items-center gap-3 sm:gap-5">
+
+                {/* Success icon — smaller on mobile */}
+                <div className="flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-green-100 shrink-0">
+                  <svg className="w-5 h-5 sm:w-8 sm:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+
+                {/* Title — tighter on mobile */}
+                <div className="text-center">
+                  <h2 className="text-base sm:text-xl font-bold text-[#171a20]">Réservation confirmée !</h2>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1">
+                    Scannez ce QR code à la borne pour démarrer votre recharge
+                  </p>
+                </div>
+
+                {/*
+                  MOBILE FIX: QR size reduced from 200px to 150px on mobile.
+                  Still fully scannable at 150px (QR codes are readable down to ~100px).
+                  sm:size restores 200px on larger screens.
+                */}
+                <div className="p-3 sm:p-4 bg-white border-2 border-[#171a20] rounded-2xl shadow-lg shrink-0">
+                  <QRCodeSVG
+                    value={qrValue}
+                    size={150}
+                    bgColor="#ffffff"
+                    fgColor="#171a20"
+                    level="H"
+                    includeMargin={false}
+                    className="sm:hidden"
+                  />
+                  <QRCodeSVG
+                    value={qrValue}
+                    size={200}
+                    bgColor="#ffffff"
+                    fgColor="#171a20"
+                    level="H"
+                    includeMargin={true}
+                    className="hidden sm:block"
+                  />
+                </div>
+
+                {/* Eco badge — tighter padding on mobile */}
+                <div className="w-full bg-green-50 border border-green-200 rounded-xl p-2.5 sm:p-3 flex items-center gap-2 sm:gap-3">
+                  <span className="text-xl sm:text-2xl shrink-0">🌱</span>
+                  <div>
+                    <p className="text-xs sm:text-sm font-semibold text-green-800">Impact écologique</p>
+                    <p className="text-[11px] sm:text-xs text-green-600">{co2Saved} kg CO2 économisés • {treesEquiv} arbres plantés 🌳</p>
+                  </div>
+                </div>
+
+                {/* Booking summary — compact rows on mobile */}
+                <div className="w-full bg-slate-50 rounded-xl p-3 sm:p-4 space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Station</span>
+                    <span className="font-medium text-slate-900 text-right max-w-[55%] truncate">{station.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Énergie</span>
+                    <span className="font-medium text-slate-900">{energyNeeded.toFixed(1)} kWh</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Durée estimée</span>
+                    <span className="font-medium text-slate-900">{estimatedTime} min</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-1.5 sm:pt-2 mt-1.5 sm:mt-2">
+                    <span className="text-slate-500 font-semibold">Total</span>
+                    <span className="font-bold text-[#171a20]">{totalCost.toFixed(2)} €</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-400 text-center pb-1">Ce QR code est valable 30 minutes.</p>
               </div>
             </div>
-            <div className="w-full bg-slate-50 rounded-xl p-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Station</span>
-                <span className="font-medium text-slate-900">{station.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Énergie</span>
-                <span className="font-medium text-slate-900">{energyNeeded.toFixed(1)} kWh</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Durée estimée</span>
-                <span className="font-medium text-slate-900">{estimatedTime} min</span>
-              </div>
-              <div className="flex justify-between border-t pt-2 mt-2">
-                <span className="text-slate-500 font-semibold">Total</span>
-                <span className="font-bold text-[#171a20]">{totalCost.toFixed(2)} €</span>
-              </div>
+
+            {/*
+              MOBILE FIX: "Terminer" button is OUTSIDE the scroll area — sticky at the bottom.
+              Uses border-t + bg-white + safe padding so it's always tappable on any phone height.
+              This is the key fix: previously the button was inside the flex column and got
+              pushed below the fold on ~740px viewport-height Android devices.
+            */}
+            <div className="shrink-0 px-4 py-3 sm:py-4 border-t border-slate-100 bg-white">
+              <button
+                onClick={handleTerminer}
+                className="w-full py-3 rounded-xl bg-[#171a20] text-white text-sm font-semibold hover:bg-slate-700 active:bg-slate-800 transition-colors"
+              >
+                Terminer → Voir ma recharge en cours
+              </button>
             </div>
-            <p className="text-xs text-slate-400 text-center">Ce QR code est valable 30 minutes.</p>
-            <button
-              onClick={handleTerminer}
-              className="w-full py-2.5 rounded-xl bg-[#171a20] text-white text-sm font-semibold hover:bg-slate-700 transition-colors"
-            >
-              Terminer → Voir ma recharge en cours
-            </button>
-          </div>
+          </>
 
         ) : showSmartRec ? (
-          /* SMART CHARGING SCREEN */
+          /* ── SMART CHARGING SCREEN — unchanged ───────────────────────── */
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -248,7 +315,7 @@ export function BookingDialog({ isOpen, onClose, onFinish, station, onConfirm }:
           </>
 
         ) : (
-          /* BOOKING FORM */
+          /* ── BOOKING FORM — unchanged ────────────────────────────────── */
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">

@@ -136,30 +136,34 @@ export function FrontOffice() {
     .sort((a, b) => (userLocation ? a.distance - b.distance : 0));
 
   if (!isVerified) {
-    return <VehicleVerification onVerificationComplete={() => setIsVerified(true)} />;
+    // MOBILE FIX: Wrap VehicleVerification in a constrained, centered, overflow-safe
+    // container. On desktop: unchanged (max-w-lg centers the card nicely).
+    // On mobile: px-3 gives breathing room; overflow-x-hidden stops the stepper
+    // from causing horizontal scroll (screenshot 3 issue).
+    return (
+      <div className="w-full px-3 sm:px-6 py-4 sm:py-8 overflow-x-hidden">
+        <div className="max-w-lg mx-auto">
+          <VehicleVerification onVerificationComplete={() => setIsVerified(true)} />
+        </div>
+      </div>
+    );
   }
 
   return (
-    // MOBILE FIX: overflow-x-hidden prevents horizontal scroll caused by
-    // child elements (modals, fixed panels) overflowing the viewport width
     <div className="p-3 sm:p-4 lg:p-6 xl:p-8 overflow-x-hidden w-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
-        {/* MOBILE FIX: TabsList was using max-w-md which can overflow on very small screens.
-            w-full ensures it never exceeds the container. grid-cols-3 is kept for desktop. */}
         <TabsList className="grid w-full grid-cols-3 max-w-md">
           <TabsTrigger value="stations">Stations</TabsTrigger>
           <TabsTrigger value="history">Historique</TabsTrigger>
           <TabsTrigger value="profile">Profil</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="stations" className="space-y-4 sm:space-y-6">
+        <TabsContent value="stations" className="space-y-3 sm:space-y-6">
           <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              {/* MOBILE FIX: On very small screens the search + button row would overflow.
-                  flex-wrap allows the button to wrap below the input on tiny screens. */}
+            {/* MOBILE FIX: reduce vertical padding on mobile */}
+            <CardContent className="pt-3 pb-3 sm:pt-6 sm:pb-6">
               <div className="flex flex-wrap gap-2 sm:gap-3">
                 <div className="relative flex-1 min-w-0">
-                  {/* min-w-0 prevents the input from overflowing its flex container */}
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                   <Input
                     placeholder="Rechercher une station..."
@@ -168,7 +172,6 @@ export function FrontOffice() {
                     className="pl-10 w-full"
                   />
                 </div>
-                {/* MOBILE FIX: shrink-0 prevents button from being squeezed below readable size */}
                 <Button onClick={handleNearMe} disabled={locating} className="shrink-0">
                   <Navigation className="size-4 mr-2" />
                   {locating ? 'Localisation...' : 'Près de moi'}
@@ -178,26 +181,24 @@ export function FrontOffice() {
           </Card>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 space-y-4">
-              <Loader2 className="size-8 animate-spin text-red-500" />
-              <p className="text-slate-500">Chargement des stations...</p>
+            <div className="flex flex-col items-center justify-center py-12 sm:py-20 space-y-3">
+              <Loader2 className="size-7 sm:size-8 animate-spin text-red-500" />
+              <p className="text-slate-500 text-sm">Chargement des stations...</p>
             </div>
           ) : error ? (
-            <div className="text-center py-20 text-red-500">{error}</div>
+            <div className="text-center py-12 text-red-500 text-sm">{error}</div>
           ) : (
-            // MOBILE FIX: On mobile (default), stack station list and map vertically.
-            // lg:grid-cols-3 kicks in only on large screens, preserving desktop layout.
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-              {/* Station list column */}
-              <div className="lg:col-span-1 space-y-3 sm:space-y-4">
-                <h2 className="font-semibold text-base sm:text-lg">
+            // MOBILE FIX: single column on mobile, 3-col grid on lg+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+              {/* ── Station list ─────────────────────────────────────── */}
+              <div className="lg:col-span-1 space-y-2 sm:space-y-3">
+                <h2 className="font-semibold text-sm sm:text-base lg:text-lg">
                   {userLocation ? 'Stations les plus proches' : 'Stations disponibles'} ({filteredStations.length})
                 </h2>
-                {/* MOBILE FIX: On mobile, limit list height less aggressively so it doesn't
-                    consume the entire viewport. On desktop, keep max-h-[600px] as before. */}
-                <div className="space-y-3 max-h-[400px] sm:max-h-[500px] lg:max-h-[600px] overflow-y-auto pr-1 sm:pr-2">
+                {/* MOBILE FIX: tighter max-height so list doesn't dominate the mobile viewport */}
+                <div className="space-y-2 sm:space-y-3 max-h-[340px] sm:max-h-[480px] lg:max-h-[600px] overflow-y-auto pr-1 sm:pr-2">
                   {filteredStations.length === 0 ? (
-                    <p className="text-slate-500 text-center py-10">Aucune station trouvée.</p>
+                    <p className="text-slate-500 text-center py-8 text-sm">Aucune station trouvée.</p>
                   ) : (
                     filteredStations.map(station => (
                       <Card
@@ -207,13 +208,12 @@ export function FrontOffice() {
                         }`}
                         onClick={() => setSelectedStation(station)}
                       >
-                        <CardHeader className="pb-2 sm:pb-3">
+                        {/* MOBILE FIX: tighter card header padding on mobile */}
+                        <CardHeader className="pb-2 pt-3 px-3 sm:pt-4 sm:px-4 sm:pb-3">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
-                              {/* MOBILE FIX: truncate prevents long station names from
-                                  pushing the badge off-screen */}
                               <CardTitle className="text-sm sm:text-base truncate">{station.name}</CardTitle>
-                              <CardDescription className="text-xs mt-1">
+                              <CardDescription className="text-xs mt-0.5 sm:mt-1">
                                 <MapPin className="size-3 inline mr-1" />
                                 {station.city} • {station.distance} km
                                 {userLocation && (
@@ -239,35 +239,36 @@ export function FrontOffice() {
                             </Badge>
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
+                        {/* MOBILE FIX: smaller text + tighter spacing inside card body */}
+                        <CardContent className="px-3 pb-3 sm:px-4 sm:pb-4 space-y-1.5 sm:space-y-2">
+                          <div className="flex items-center justify-between text-xs sm:text-sm">
                             <span className="text-slate-600 flex items-center gap-1">
-                              <Battery className="size-4" />Ports
+                              <Battery className="size-3 sm:size-4" />Ports
                             </span>
                             <span className="font-semibold">{station.availablePorts}/{station.totalPorts}</span>
                           </div>
-                          <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center justify-between text-xs sm:text-sm">
                             <span className="text-slate-600 flex items-center gap-1">
-                              <DollarSign className="size-4" />Prix
+                              <DollarSign className="size-3 sm:size-4" />Prix
                             </span>
                             <span className="font-semibold">{station.pricePerKwh}€/kWh</span>
                           </div>
-                          <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center justify-between text-xs sm:text-sm">
                             <span className="text-slate-600 flex items-center gap-1">
-                              <Star className="size-4 fill-yellow-400 text-yellow-400" />Note
+                              <Star className="size-3 sm:size-4 fill-yellow-400 text-yellow-400" />Note
                             </span>
                             <span className="font-semibold">{station.rating}/5</span>
                           </div>
                           {station.status === 'available' && (
                             <Button
-                              className="w-full mt-2"
+                              className="w-full mt-1.5 sm:mt-2 h-8 sm:h-9 text-xs sm:text-sm"
                               size="sm"
                               onClick={e => {
                                 e.stopPropagation();
                                 handleBookStation(station);
                               }}
                             >
-                              <Calendar className="size-4 mr-2" />
+                              <Calendar className="size-3 sm:size-4 mr-1.5 sm:mr-2" />
                               Réserver
                             </Button>
                           )}
@@ -278,10 +279,10 @@ export function FrontOffice() {
                 </div>
               </div>
 
-              {/* Map column — on mobile takes full width, on desktop 2/3 */}
+              {/* ── Map ──────────────────────────────────────────────── */}
               <div className="lg:col-span-2">
-                {/* MOBILE FIX: Constrain map height on mobile to avoid taking full screen */}
-                <div className="h-[300px] sm:h-[400px] lg:h-full">
+                {/* MOBILE FIX: explicit, smaller height on mobile; auto on desktop */}
+                <div className="h-[240px] sm:h-[360px] lg:h-full min-h-[200px]">
                   <StationMap
                     stations={filteredStations}
                     selectedStation={selectedStation}
@@ -302,8 +303,6 @@ export function FrontOffice() {
         </TabsContent>
       </Tabs>
 
-      {/* MOBILE FIX: BookingDialog is rendered at root level — ensure the dialog itself
-          uses mobile-safe classes (see note below about dialog wrapper requirements) */}
       {bookingDialogOpen && stationToBook && (
         <BookingDialog
           isOpen={bookingDialogOpen}
@@ -314,7 +313,6 @@ export function FrontOffice() {
         />
       )}
 
-      {/* EcoAdvisor — see App.tsx note: its container must be mobile-safe */}
       <EcoAdvisor />
     </div>
   );
